@@ -1,0 +1,13 @@
+[unstable]
+# The core library is precompiled with the Rust compiler, so it is only valid for supported host triples, not our custom target. `build-std` allows us to recompile the core library on demand.
+build-std = ["core", "compiler_builtins"]
+# Some memory-related functions in the newly recompiled `compiler_builtins` crate are not enabled by default because they're not usually provided by the C library. We could implement our own functions with #[no_mangle], however this risk undefined behavior from typos. It's easier to simply enable the disabled-by-default `compiler_builtins` functions with:
+build-std-features = ["compiler-builtins-mem"]
+
+# setting a default target so we don't have to pass --target argument every time we `cargo build`
+[build]
+target = "x86_64-blog_os.json"
+
+# To make it easier to run our kernel in QEMU, we can set the runner configuration key for cargo:
+[target.'cfg(target_os="none")']
+runner = "bootimage runner"

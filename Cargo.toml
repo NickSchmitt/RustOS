@@ -1,0 +1,19 @@
+[package]
+name = "blog_os"
+version = "0.1.0"
+authors = ["nickschmitt <nickschmitt@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+# Profile for `cargo build`
+[profile.dev]
+panic = "abort" # disable stack unwinding on panic
+
+# Profile for `cargo build --release`
+[profile.release]
+panic = "abort" # disable stack unwinding on panic
+
+[dependencies]
+# Adding the bootloader as dependency is not enough to actually create a bootable disk image. The problem is that we need to link our kernel with the bootloader after compilation, but cargo has no support for post-build scripts. To solve this problem, we created a tool named bootimage that first compiles the kernel and bootloader, and then links them together to create a bootable disk image. To install the tool, execute the following command in your terminal: `cargo install bootimage`
+bootloader = "0.9.8" 
