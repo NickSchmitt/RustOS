@@ -85,7 +85,7 @@ impl Writer {
 // Write whole strings
 
 impl Writer {
-    pub fn write_string(&mut sself, s: &str) {
+    pub fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
                 // printable ASCII byte or newline
@@ -95,4 +95,19 @@ impl Writer {
             }
         }
     }
+}
+
+pub fn print_something(){
+    // create a new Writer that points to the VGA buffer at 0xb8000
+    let mut writer = Writer {
+        column_position: 0,
+        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        // cast integer 0xb8000 as a mutable rraw pointer
+        // then convert it to a mutable reference by dereferencing it with * then borrowing it again with &mut. (Why?)
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer)}, //cast 0xb8000 as a mutable raw pointer, then convert it to a mutable reference, 
+    };
+
+    writer.write_byte(b'H');
+    writer.write_string("ello ");
+    writer.write_string("Wörld!");
 }
