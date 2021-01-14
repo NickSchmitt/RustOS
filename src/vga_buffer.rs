@@ -1,6 +1,31 @@
+
+// ***PRINTLN MACRO STUFF***
+// #[macro_export] //makes the macro available to the whole crate and external crates. Also places the macro at the crate root 
+// macro_rules! print {
+//     //$crate ensures macro works outisde std by expanding to std when used in other crates
+//     // foramt_args! builds a fmt::Arguments type from the args
+//     ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*))); 
+// }
+
+// #[macro_export]
+// macro_rules! println {
+//     // prefix the print! invocation with $crate so we don't have to import print! if we just want to use println
+//     () => ($crate::print!("\n"));
+//     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+// }
+
+// // private implementation detail, so hide it from the docs with doc(hidden)
+// #[doc(hidden)]
+// pub fn _print(args: fmt::Arguments) {
+//     use core::fmt::Write;
+//     WRITER.lock().write_fmt(args).unwrap();
+// }
+// ***END PRINTLN MACRO STUFF***
+
+use core::fmt;
+use volatile::Volatile;
+
 // specifying the colors of the vga buffer
-
-
 #[allow(dead_code)] // disable warning for unused enum variants
 #[derive(Debug, Clone, Copy, PartialEq, Eq)] //enable copy semantics and make it printable and comparable
 #[repr(u8)] // store each enum variant as a u8
@@ -43,9 +68,11 @@ struct ScreenChar {
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
 
+
+// The compiler doesn't know that we really access VGA buffer memory (instead of normal RAM) and knows nothing about the side effect that some characters appear on the screen. It might see these writes as unnecessary and omit them. Using Volatile<> tells the compiler that the write has side effects and should not be optimized away. This ensures that we can't accidentally write to it through a “normal” write. Instead, we have to use the write method now.
 #[repr(transparent)]
 struct Buffer {
-    chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+    chars: [[Volatile<ScreenChar>; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
 // will always write to the last line and shift lines up. 
@@ -66,26 +93,22 @@ impl Writer {
                     self.new_line();
                 }
 
-                let row = BUFFER_HEIGHT -1;
+                let row = BUFFER_HEIGHT - 1;
                 let col = self.column_position;
 
                 let color_code = self.color_code;
-                self.buffer.chars[row][col] = ScreenChar {
+                self.buffer.chars[row][col].write(ScreenChar {
                     ascii_character: byte,
                     color_code,
-                };
+                });
                 self.column_position += 1;
             }
         }
     }
 
-    fn new_line(&mut self) {/* TODO */}
-}
+    // Write whole strings
 
-// Write whole strings
-
-impl Writer {
-    pub fn write_string(&mut self, s: &str) {
+    fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
                 // printable ASCII byte or newline
@@ -95,9 +118,22 @@ impl Writer {
             }
         }
     }
+
+    fn new_line(&mut self) {/* TODO */}
 }
 
+// Implement core::fmt::Write to support Rust's formatting macros
+impl fmt::Write for Writer {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
+        Ok(())
+    }
+}
+
+
+
 pub fn print_something(){
+    use core::fmt::Write;
     // create a new Writer that points to the VGA buffer at 0xb8000
     let mut writer = Writer {
         column_position: 0,
@@ -109,5 +145,4 @@ pub fn print_something(){
 
     writer.write_byte(b'H');
     writer.write_string("ello ");
-    writer.write_string("Wörld!");
-}
+    write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap();}

@@ -13,6 +13,8 @@ static HELLO: &[u8] = b"Hello World!";
 // Entry point, since the linker looks for a function named `_start` by default
 pub extern "C" fn _start() -> ! {
 
+    // println!("Hello World{}", "!");
+
     //  Unsafe implementation of  VGA text buffer.
     let vga_buffer = 0xb8000 as *mut u8;
 
