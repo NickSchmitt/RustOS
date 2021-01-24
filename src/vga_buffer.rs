@@ -118,8 +118,28 @@ impl Writer {
             }
         }
     }
+    // move every char one line up, delete the top line, start at the beginning of the last line
+    fn new_line(&mut self) {
+        for row in 1..BUFFER_HEIGHT{
+            for col in 0..BUFFER_WIDTH{
+                let character = self.buffer.chars[row][col].read();
+                self.buffer.chars[row-1][col].write(character)
+            }
+        }
+        self.clear_row(BUFFER_HEIGHT -1);
+        self.column_position = 0;
+    }
 
-    fn new_line(&mut self) {/* TODO */}
+    // clear a row by overwriting it with space characters.
+    fn clear_row(&mut self, row: usize){
+        let blank = ScreenChar {
+            ascii_character: b' ',
+            color_code: self.color_code,
+        };
+        for col in 0..BUFFER_WIDTH {
+            self.buffer.chars[row][col].write(blank);
+        }
+    }
 }
 
 // Implement core::fmt::Write to support Rust's formatting macros
