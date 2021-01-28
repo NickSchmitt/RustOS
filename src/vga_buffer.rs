@@ -152,24 +152,6 @@ impl fmt::Write for Writer {
     }
 }
 
-
-
-// pub fn print_something(){
-//     use core::fmt::Write;
-//     // create a new Writer that points to the VGA buffer at 0xb8000
-//     let mut writer = Writer {
-//         column_position: 0,
-//         color_code: ColorCode::new(Color::Yellow, Color::Black),
-//         // cast integer 0xb8000 as a mutable rraw pointer
-//         // then convert it to a mutable reference by dereferencing it with * then borrowing it again with &mut. (Why?)
-//         buffer: unsafe { &mut *(0xb8000 as *mut Buffer)}, //cast 0xb8000 as a mutable raw pointer, then convert it to a mutable reference, 
-//     };
-
-//     writer.write_byte(b'H');
-//     writer.write_string("ello ");
-//     write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap();
-// }
-
 // using the lazy_static! macro to lazily initialize a static at runtime.
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer { //using a spinlock in lieu of mutex
