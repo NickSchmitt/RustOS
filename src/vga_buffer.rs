@@ -1,29 +1,31 @@
 
 // ***PRINTLN MACRO STUFF***
-// #[macro_export] //makes the macro available to the whole crate and external crates. Also places the macro at the crate root 
-// macro_rules! print {
-//     //$crate ensures macro works outisde std by expanding to std when used in other crates
-//     // foramt_args! builds a fmt::Arguments type from the args
-//     ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*))); 
-// }
+#[macro_export] //makes the macro available to the whole crate and external crates. Also places the macro at the crate root 
+macro_rules! print {
+    //$crate ensures macro works outisde std by expanding to std when used in other crates
+    // foramt_args! builds a fmt::Arguments type from the args
+    ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*))); 
+}
 
-// #[macro_export]
-// macro_rules! println {
-//     // prefix the print! invocation with $crate so we don't have to import print! if we just want to use println
-//     () => ($crate::print!("\n"));
-//     ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
-// }
+#[macro_export]
+macro_rules! println {
+    // prefix the print! invocation with $crate so we don't have to import print! if we just want to use println
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
 
-// // private implementation detail, so hide it from the docs with doc(hidden)
-// #[doc(hidden)]
-// pub fn _print(args: fmt::Arguments) {
-//     use core::fmt::Write;
-//     WRITER.lock().write_fmt(args).unwrap();
-// }
+// private implementation detail, so hide it from the docs with doc(hidden)
+#[doc(hidden)]
+pub fn _print(args: fmt::Arguments) {
+    use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap();
+}
 // ***END PRINTLN MACRO STUFF***
 
 use core::fmt;
 use volatile::Volatile;
+use lazy_static::lazy_static;
+use spin::Mutex;
 
 // specifying the colors of the vga buffer
 #[allow(dead_code)] // disable warning for unused enum variants
@@ -152,17 +154,27 @@ impl fmt::Write for Writer {
 
 
 
-pub fn print_something(){
-    use core::fmt::Write;
-    // create a new Writer that points to the VGA buffer at 0xb8000
-    let mut writer = Writer {
+// pub fn print_something(){
+//     use core::fmt::Write;
+//     // create a new Writer that points to the VGA buffer at 0xb8000
+//     let mut writer = Writer {
+//         column_position: 0,
+//         color_code: ColorCode::new(Color::Yellow, Color::Black),
+//         // cast integer 0xb8000 as a mutable rraw pointer
+//         // then convert it to a mutable reference by dereferencing it with * then borrowing it again with &mut. (Why?)
+//         buffer: unsafe { &mut *(0xb8000 as *mut Buffer)}, //cast 0xb8000 as a mutable raw pointer, then convert it to a mutable reference, 
+//     };
+
+//     writer.write_byte(b'H');
+//     writer.write_string("ello ");
+//     write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap();
+// }
+
+// using the lazy_static! macro to lazily initialize a static at runtime.
+lazy_static! {
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer { //using a spinlock in lieu of mutex
         column_position: 0,
         color_code: ColorCode::new(Color::Yellow, Color::Black),
-        // cast integer 0xb8000 as a mutable rraw pointer
-        // then convert it to a mutable reference by dereferencing it with * then borrowing it again with &mut. (Why?)
-        buffer: unsafe { &mut *(0xb8000 as *mut Buffer)}, //cast 0xb8000 as a mutable raw pointer, then convert it to a mutable reference, 
-    };
-
-    writer.write_byte(b'H');
-    writer.write_string("ello ");
-    write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap();}
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+    });
+}
