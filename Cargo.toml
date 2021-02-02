@@ -8,11 +8,11 @@ edition = "2018"
 
 # Profile for `cargo build`
 [profile.dev]
-panic = "abort" # disable stack unwinding on panic
+# panic = "abort" # disable stack unwinding on panic | disabled because it conflicts with testing
 
 # Profile for `cargo build --release`
 [profile.release]
-panic = "abort" # disable stack unwinding on panic
+# panic = "abort" # disable stack unwinding on panic | disabled because it conflicts with testing
 
 [dependencies]
 
@@ -21,7 +21,15 @@ bootloader = "0.9.8" # Adding the bootloader as dependency is not enough to actu
 volatile = "0.2.6" #Used for volatile writes to the VGA buffer 
 spin = "0.5.2" #In std, mutex blocks threads when resources are already lost. Since we don't have access to std, we use spinlocks, which cause threads to wait in a loop, repeatedly checking if the lock is available. This will give interior mutability to the static WRITER
 
+x86_64 = "0.12.1"
+
+uart_16550 = "0.2.0"
+
 # statics are usually initialized at compile time (normal variables at runtime). lazy_static! macro allows us to lazily init static at runtime.
 [dependencies.lazy_static]
 version = "1.0"
 features = ["spin_no_std"]
+
+[package.metadata.bootimage]
+test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04", "-serial", "stdio"]
+test-success-exit-code = 33
