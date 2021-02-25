@@ -1,11 +1,13 @@
 #![no_std]
 #![no_main]
+#![feature(abi_x86_interrupt)]
 
 use core::panic::PanicInfo;
 use lazy_static::lazy_static;
-use x86_64::structures::idt::InterruptDescriptorTable;
+use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
 use blog_os::{gdt::{self, DOUBLE_FAULT_IST_INDEX}, serial_print, test_panic_handler};
+use blog_os::{exit_qemu, QemuExitCode, serial_println};
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
@@ -18,6 +20,15 @@ pub extern "C" fn _start() -> ! {
 	stack_overflow();
 
 	panic!("Execution continued after stack overflow");
+}
+
+extern "x86-interrupt" fn test_double_fault_handler(
+    _stack_frame: &mut InterruptStackFrame,
+    _error_code: u64,
+) -> ! {
+    serial_println!("[ok]");
+    exit_qemu(QemuExitCode::Success);
+    loop {}
 }
 
 lazy_static! {
