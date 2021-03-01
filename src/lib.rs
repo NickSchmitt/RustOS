@@ -63,6 +63,9 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 pub fn init(){
     gdt::init();
     interrupts::init_idt();
+    unsafe {
+        interrupts::PICS.lock().initialize();
+    }
 }
 
 /// Entry point for `cargo test`
