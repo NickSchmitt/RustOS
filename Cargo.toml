@@ -4,7 +4,13 @@ version = "0.1.0"
 authors = ["nickschmitt <nickschmitt@gmail.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[test]]
+name = "should_panic"
+harness = false
+
+[[test]]
+name = "stack_overflow"
+harness = false
 
 # Profile for `cargo build`
 [profile.dev]
@@ -16,16 +22,16 @@ edition = "2018"
 
 [dependencies]
 
-bootloader = "0.9.8" # Adding the bootloader as dependency is not enough to actually create a bootable disk image. The problem is that we need to link our kernel with the bootloader after compilation, but cargo has no support for post-build scripts. To solve this problem, we created a tool named bootimage that first compiles the kernel and bootloader, and then links them together to create a bootable disk image. To install the tool, execute the following command in your terminal: `cargo install bootimage`
+bootloader = "0.9.8" # Adding the bootloader as dependency is not enough to actually create a bootable disk image. The problem is that we need to link our kernel with the bootloader after compilation, but cargo has no support for post-build scripts. To solve this problem, we created a tool named bootimage that first compiles the kernel and bootloader, and then links them together to create a bootable disk image.
 
-volatile = "0.2.6" #Used for volatile writes to the VGA buffer 
-spin = "0.5.2" #In std, mutex blocks threads when resources are already lost. Since we don't have access to std, we use spinlocks, which cause threads to wait in a loop, repeatedly checking if the lock is available. This will give interior mutability to the static WRITER
+volatile = "0.2.6" # Used for volatile writes to the VGA buffer 
+spin = "0.5.2" # In std, mutex blocks threads when resources are already lost. Since we don't have access to std, we use spinlocks, which cause threads to wait in a loop, repeatedly checking if the lock is available. This will give interior mutability to the static WRITER
 
 x86_64 = "0.12.1"
 
 uart_16550 = "0.2.0"
 
-pic8259_simple="0.2.0"
+pic8259_simple = "0.2.0"
 
 # statics are usually initialized at compile time (normal variables at runtime). lazy_static! macro allows us to lazily init static at runtime.
 [dependencies.lazy_static]
@@ -43,11 +49,3 @@ test-args = [
 ]
 test-success-exit-code = 33
 test-timeout = 100
-
-[[test]]
-name = "should_panic"
-harness = false
-
-[[test]]
-name = "stack_overflow"
-harness = false

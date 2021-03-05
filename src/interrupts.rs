@@ -1,7 +1,6 @@
-use crate::println;
-use crate::gdt;
-use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
+use crate::{gdt, println};
 use lazy_static::lazy_static;
+use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 use pic8259_simple::ChainedPics;
 use spin;
 
