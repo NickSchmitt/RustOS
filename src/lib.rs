@@ -18,6 +18,7 @@ pub fn init(){
     unsafe {
         interrupts::PICS.lock().initialize();
     }
+    x86_64::instructions::interrupts::enable();
 }
 pub trait Testable {
     fn run(&self) -> ();
