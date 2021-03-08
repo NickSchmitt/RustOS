@@ -30,7 +30,10 @@ pub extern "C" fn _start() -> ! {
 
     println!("It did not crash!");
     
-    loop{}
+    loop{
+        use blog_os::print;
+        print!("oops");
+    }
 }
 
 // Function called on panic
