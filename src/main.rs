@@ -8,7 +8,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
-use blog_os::println;
+use blog_os::{hlt_loop, println};
 
 // `#[no_mangle]` macro disables name mangling, preventing compiler from turning the _start function into a randomly named function.
 #[no_mangle] 
@@ -30,10 +30,7 @@ pub extern "C" fn _start() -> ! {
 
     println!("It did not crash!");
     
-    loop{
-        use blog_os::print;
-        print!("-");
-    }
+    blog_os::hlt_loop();
 }
 
 // Function called on panic
@@ -41,7 +38,7 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    blog_os::hlt_loop();
 }
 
 // panic handler in test mode
