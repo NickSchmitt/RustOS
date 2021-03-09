@@ -32,7 +32,7 @@ pub extern "C" fn _start() -> ! {
     
     loop{
         use blog_os::print;
-        print!("oops");
+        print!("-");
     }
 }
 
