@@ -18,8 +18,15 @@ pub extern "C" fn _start() -> ! {
 
     blog_os::init();
 
-    let ptr = 0xdeadbeaf as *mut u32;
+    // let ptr = 0xdeadbeaf as *mut u32;
+    // unsafe { *ptr = 42; }
+
+    let ptr = 0x204970 as *mut u32;
+    unsafe { let x = *ptr; }
+    println!("read worked because code pages are mapped read-only by the bootloader. But when we try to write:");
+
     unsafe { *ptr = 42; }
+    println!("writing will not work ecause the code page is read-only :(");
 
     #[cfg(test)]
     test_main();
