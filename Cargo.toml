@@ -22,7 +22,7 @@ harness = false
 
 [dependencies]
 
-bootloader = "0.9.8" # Adding the bootloader as dependency is not enough to actually create a bootable disk image. The problem is that we need to link our kernel with the bootloader after compilation, but cargo has no support for post-build scripts. To solve this problem, we created a tool named bootimage that first compiles the kernel and bootloader, and then links them together to create a bootable disk image.
+bootloader = { version = "0.9.8", features = ["map_physical_memory"] } # Adding the bootloader as dependency is not enough to actually create a bootable disk image. The problem is that we need to link our kernel with the bootloader after compilation, but cargo has no support for post-build scripts. To solve this problem, we created a tool named bootimage that first compiles the kernel and bootloader, and then links them together to create a bootable disk image.
 
 volatile = "0.2.6" # Used for volatile writes to the VGA buffer 
 spin = "0.5.2" # In std, mutex blocks threads when resources are already lost. Since we don't have access to std, we use spinlocks, which cause threads to wait in a loop, repeatedly checking if the lock is available. This will give interior mutability to the static WRITER
