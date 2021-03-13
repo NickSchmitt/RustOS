@@ -17,20 +17,25 @@ entry_point!(kernel_main);
 #[no_mangle] 
 // Entry point, since the linker looks for a function named `_start` by default
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    println!("Hello World{}","!");
+    use blog_os::memory::active_level_4_table;
+    use x86_64::VirtAddr;
 
+    println!("Hello World{}","!");
     blog_os::init();
 
-    use x86_64::registers::control::Cr3;
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let l4_table = unsafe { active_level_4_table(phys_mem_offset)};
 
-    let (level_4_page_table, _) = Cr3::read();
-    println!("Level 4 page table at {:?}", level_4_page_table.start_address());
+    for (i, entry) in l4_table.iter().enumerate(){
+        if !entry.is_unused() {
+            println!("L4 Entry{}: {:?}", i, entry);
+        }
+    }
 
     #[cfg(test)]
     test_main();
 
     println!("It did not crash!");
-    
     blog_os::hlt_loop();
 }
 
