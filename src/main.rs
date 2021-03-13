@@ -9,12 +9,14 @@
 
 use core::panic::PanicInfo;
 use blog_os::{hlt_loop, println};
-use bootloader::BootInfo;
+use bootloader::{BootInfo, entry_point};
+
+entry_point!(kernel_main);
 
 // `#[no_mangle]` macro disables name mangling, preventing compiler from turning the _start function into a randomly named function.
 #[no_mangle] 
 // Entry point, since the linker looks for a function named `_start` by default
-pub extern "C" fn _start(boot_info: &'static BootInfo) -> ! {
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
     println!("Hello World{}","!");
 
     blog_os::init();
