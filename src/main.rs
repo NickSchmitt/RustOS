@@ -10,6 +10,7 @@
 use core::panic::PanicInfo;
 use blog_os::{hlt_loop, println};
 use bootloader::{BootInfo, entry_point};
+use x86_64::structures::paging::PageTable;
 
 entry_point!(kernel_main);
 
