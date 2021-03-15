@@ -10,7 +10,7 @@
 use core::panic::PanicInfo;
 use blog_os::{hlt_loop, println};
 use bootloader::{BootInfo, entry_point};
-use x86_64::structures::paging::PageTable;
+use x86_64::structures::paging::{PageTable};
 
 entry_point!(kernel_main);
 
@@ -18,30 +18,32 @@ entry_point!(kernel_main);
 #[no_mangle] 
 // Entry point, since the linker looks for a function named `_start` by default
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    use blog_os::memory::translate_addr;
-    use x86_64::VirtAddr;
+    use blog_os::memory;
+    use x86_64::{structures::paging::Translate, VirtAddr};
 
     println!("Hello World{}","!");
     blog_os::init();
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+
+    // initialize a mapper
+    let mapper = unsafe {memory::init(phys_mem_offset)};
     
     let addresses = [
         // identity-mapped VGA buffer page
         0xb8000,
-
         //some code page
         0x201008,
-
         //some stack page
         0x0100_0020_1a10,
-
         boot_info.physical_memory_offset,
     ];
 
     for &address in &addresses {
         let virt = VirtAddr::new(address);
-        let phys = unsafe { translate_addr(virt, phys_mem_offset)};
+
+        // use mapper.translate_addr method
+        let phys = mapper.translate_addr(virt);
         println!("{:?} -> {:?}", virt, phys);
     }
 
@@ -49,7 +51,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     test_main();
 
     println!("It did not crash!");
-    blog_os::hlt_loop();
+    hlt_loop();
 }
 
 // Function called on panic
@@ -57,7 +59,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    blog_os::hlt_loop();
+    hlt_loop();
 }
 
 // panic handler in test mode
