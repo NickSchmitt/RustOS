@@ -27,7 +27,7 @@ bootloader = { version = "0.9.8", features = ["map_physical_memory"] } # Adding 
 volatile = "0.2.6" # Used for volatile writes to the VGA buffer 
 spin = "0.5.2" # In std, mutex blocks threads when resources are already lost. Since we don't have access to std, we use spinlocks, which cause threads to wait in a loop, repeatedly checking if the lock is available. This will give interior mutability to the static WRITER
 
-x86_64 = "0.12.1"
+x86_64 = "*"
 
 uart_16550 = "0.2.0"
 
