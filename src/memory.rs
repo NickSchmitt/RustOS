@@ -1,4 +1,5 @@
 use x86_64::{VirtAddr, PhysAddr, structures::paging::{PageTable, OffsetPageTable, Page, PhysFrame, Mapper, Size4KiB, FrameAllocator}};
+use bootloader::bootinfo::MemoryMap;
 
 pub unsafe fn init(physical_memory_offset: VirtAddr)-> OffsetPageTable<'static> {
 	let level_4_table = active_level_4_table(physical_memory_offset);
@@ -34,6 +35,29 @@ pub fn create_example_mapping(
 	};
 
 	map_to_result.expect("map_to failed").flush();
+}
+
+// FrameAllocator that returns usable frames from the bootloader's memory map.
+pub struct BootInfoFrameAllocator {
+	memory_map: &'static MemoryMap,
+	next: usize,
+}
+
+impl BootInfoFrameAllocator {
+	/*
+	Create a FrameAllocator from the passed memory map
+
+	This function is unsafe because the caller must guarantee that the passed memory map is valid.
+	The main requirement is that all frames marked as `USABLE` in it are really unused.
+	 */
+
+	 pub unsafe fn init(memory_map: &'static MemoryMap) -> Self {
+		 BootInfoFrameAllocator {
+			 memory_map,
+			 next: 0,
+		 }
+	 }
+	
 }
 
 pub struct EmptyFrameAllocator;
