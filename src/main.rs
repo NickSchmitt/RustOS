@@ -8,10 +8,9 @@
 #![test_runner(blog_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use blog_os::{hlt_loop, memory::BootInfoFrameAllocator, println};
+use blog_os::println;
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
-use x86_64::structures::paging::PageTable;
 
 entry_point!(kernel_main);
 
@@ -19,8 +18,7 @@ entry_point!(kernel_main);
 #[no_mangle]
 // Entry point, since the linker looks for a function named `_start` by default
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
-    use blog_os::memory;
-    use blog_os::memory::BootInfoFrameAllocator;
+    use blog_os::memory::{self, BootInfoFrameAllocator};
     use x86_64::{structures::paging::Page, VirtAddr};
 
     println!("Hello World{}", "!");
@@ -46,7 +44,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     test_main();
 
     println!("It did not crash!");
-    hlt_loop();
+    blog_os::hlt_loop();
 }
 
 // Function called on panic
@@ -54,7 +52,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    hlt_loop();
+    blog_os::hlt_loop();
 }
 
 // panic handler in test mode
