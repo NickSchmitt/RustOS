@@ -4,17 +4,17 @@
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use core::panic::PanicInfo;
 use blog_os::println;
+use core::panic::PanicInfo;
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     test_main();
 
-    loop{}
+    loop {}
 }
 
-fn test_runner(tests: &[&dyn Fn()]){
+fn test_runner(tests: &[&dyn Fn()]) {
     unimplemented!();
 }
 
