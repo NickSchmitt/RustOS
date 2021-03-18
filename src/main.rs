@@ -8,7 +8,7 @@
 #![test_runner(blog_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-use blog_os::{hlt_loop, println};
+use blog_os::{hlt_loop, memory::BootInfoFrameAllocator, println};
 use bootloader::{entry_point, BootInfo};
 use core::panic::PanicInfo;
 use x86_64::structures::paging::PageTable;
@@ -20,6 +20,7 @@ entry_point!(kernel_main);
 // Entry point, since the linker looks for a function named `_start` by default
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
     use blog_os::memory;
+    use blog_os::memory::BootInfoFrameAllocator;
     use x86_64::{structures::paging::Page, VirtAddr};
 
     println!("Hello World{}", "!");
@@ -29,7 +30,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     // initialize a mapper
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
-    let mut frame_allocator = memory::EmptyFrameAllocator;
+    let mut frame_allocator = unsafe {
+        BootInfoFrameAllocator::init(&boot_info.memory_map)
+    };
 
     // map unused page
     let page = Page::containing_address(VirtAddr::new(0));
