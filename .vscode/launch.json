@@ -1,0 +1,121 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in library 'blog_os'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--lib",
+					"--package=blog_os"
+				],
+				"filter": {
+					"name": "blog_os",
+					"kind": "lib"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug executable 'blog_os'",
+			"cargo": {
+				"args": [
+					"build",
+					"--bin=blog_os",
+					"--package=blog_os"
+				],
+				"filter": {
+					"name": "blog_os",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in executable 'blog_os'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--bin=blog_os",
+					"--package=blog_os"
+				],
+				"filter": {
+					"name": "blog_os",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug integration test 'should_panic'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--test=should_panic",
+					"--package=blog_os"
+				],
+				"filter": {
+					"name": "should_panic",
+					"kind": "test"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug integration test 'stack_overflow'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--test=stack_overflow",
+					"--package=blog_os"
+				],
+				"filter": {
+					"name": "stack_overflow",
+					"kind": "test"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug integration test 'basic_boot'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--test=basic_boot",
+					"--package=blog_os"
+				],
+				"filter": {
+					"name": "basic_boot",
+					"kind": "test"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		}
+	]
+}
