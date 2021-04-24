@@ -1,3 +1,5 @@
+use alloc::alloc::{GlobalAlloc, Layout};
+
 pub struct BumpAllocator {
 	heap_start: usize,
 	heap_end: usize,
@@ -21,8 +23,6 @@ impl BumpAllocator {
 		self.next = heap_start;
 	}
 }
-
-use alloc::alloc::{GlobalAlloc, Layout};
 
 unsafe impl GlobalAlloc for BumpAllocator {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
