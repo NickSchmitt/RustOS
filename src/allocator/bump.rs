@@ -49,7 +49,7 @@ unsafe impl GlobalAlloc for Locked<BumpAllocator> {
         let mut bump = self.lock(); // mutable reference!
 
 		bump.allocations -= 1;
-		if bump.allocations = 0 {
+		if bump.allocations == 0 {
 			bump.next = bump.heap_start;
 		}
     }

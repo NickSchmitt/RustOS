@@ -72,3 +72,12 @@ impl<A> Locked<A> {
         self.inner.lock()
     }
 }
+
+fn align_up(addr: usize, align:usize) -> usize {
+    let remainder = addr % align;
+    if remainder == 0 {
+        addr
+    } else {
+        addr - remainder + align
+    }
+}
