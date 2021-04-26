@@ -6,7 +6,6 @@ use x86_64::{
 	},
 	VirtAddr,
 };
-use linked_list_allocator::LockedHeap;
 
 pub mod bump;
 
@@ -43,9 +42,10 @@ pub fn init_heap(
 }
 
 pub struct Dummy;
+use bump::BumpAllocator;
 
 #[global_allocator]
-static ALLOCATOR: LockedHeap = LockedHeap::empty();
+static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
 
 unsafe impl GlobalAlloc for Dummy {
 	unsafe fn alloc(&self, _layout: Layout) -> *mut u8 {
