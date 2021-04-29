@@ -1,3 +1,24 @@
+pub struct LinkedListAllocator {
+	head: ListNode,
+}
+
+impl LinkedListAllocator{
+	pub const fn new()->Self{
+		Self {
+			head: ListNode::new(0),
+		}
+	}
+
+	pub unsafe fn init(&mut self, heap_start: usize, heap_size:usize){
+		self.add_free_region(heap_start, heap_size);
+	}
+
+	unsafe fn add_free_region(&mut self, addr: usize, size:usize){
+		todo!();
+	}
+}
+
+
 struct ListNode {
 	size: usize,
 	next: Option<&'static mut ListNode>,
