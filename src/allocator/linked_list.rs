@@ -17,12 +17,6 @@ impl LinkedListAllocator{
 		self.add_free_region(heap_start, heap_size);
 	}
 
-	unsafe fn add_free_region(&mut self, addr: usize, size:usize){
-		todo!();
-	}
-}
-
-impl LinkedListAllocator{
 	// Adds the given memory region to the front of the list
 	unsafe fn add_free_region(&mut self, addr: usize, size: usize){
 		// ensure that the freed region is capable of holding ListNode
@@ -36,6 +30,31 @@ impl LinkedListAllocator{
 		node_ptr.write(node);
 		self.head.next = Some(&mut *node_ptr)
 
+	}
+
+	// Looks for free region and removes it from the list to use it for allocation
+	// Returns tuple of the list node and the allocation start address
+	fn find_region(&mut self, size: usize, align: usize)
+		-> Option<(&'static mut ListNode, usize)>
+	{
+		// reference to current node
+		let mut current = &mut self.head;
+		// iterate over linked list, searching for sufficiently large free region
+		while let Some(ref mut region) = current.next {
+			if let Ok(alloc_start) = Self::alloc_from_region(&region, size, align){
+				// If region is suitable, remove free region to prepare for allocation
+				let next = region.next.take();
+				let ret = Some((current.next.take().unwrap(), alloc_start));
+				current.next = next;
+				return ret;
+			} else {
+				// Region unsuitable, continue iterative search
+				current = current.next.as_mut().unwrap();
+			}
+
+		}
+		// No suitable region
+		None
 	}
 }
 
